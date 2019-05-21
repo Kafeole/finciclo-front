@@ -1,0 +1,52 @@
+<div class="container h-100 mt-4">
+
+<div>
+<!-- Cabecera -->
+  <nav class="navbar navbar-light bg-light ">
+      <div class="container text-center p-2 ">
+          <span class="mx-auto text-bold">Vanyl.io</span>
+      </div>
+  </nav>
+</div>
+
+<!-- the code editor -->
+<div class="row mb-4">
+  <div class="col">
+      <h1>Javascript</h1>
+      <div class="code-editor" #codeEditorJ></div>
+  </div>
+  <br>
+  <div class="col">
+      <h1>HTML</h1>
+      <div class="code-editor" #codeEditorH></div>
+  </div>
+  <br>
+  <div class="col">
+      <h1>CSS</h1>
+      <div class="code-editor" #codeEditorC></div>
+  </div>
+</div>
+
+<!-- run, clear & beautify buttons -->
+<div class="row mb-4 justify-content-center mx-4">
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+        <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="beautifyContent()">
+            Beautify
+        </button>
+    </div>
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+        <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="compile()">
+            Run
+        </button>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+        <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
+        <!-- <textarea class="form-control output" rows="6" disabled="true" aria-label="output-textarea"></textarea> -->
+        <iframe class="col-lg-12 col-md-12 col-sm-12" style="height:350px;" id="code"></iframe>
+    </div>
+</div>
+
+</div>

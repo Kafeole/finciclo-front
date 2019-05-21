@@ -1,0 +1,19 @@
+
+.btn-beautify {
+    color: #ffffff;
+    background-color: #e83e8c;
+}
+
+div.code-editor {
+    max-height: 170vh;
+}
+
+.output {
+    border-bottom-left-radius: .5rem!important;
+    border-bottom-right-radius: .5rem!important;
+}
+
+div.label-box {
+    border-top-left-radius: .5rem!important;
+    border-top-right-radius: .5rem!important;
+}
