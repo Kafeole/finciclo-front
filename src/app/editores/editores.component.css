@@ -17,3 +17,44 @@ div.label-box {
     border-top-left-radius: .5rem!important;
     border-top-right-radius: .5rem!important;
 }
+/* /////////// */
+
+
+ mat-list-option[aria-selected="true"] {
+    background: rgba(0, 139, 139, 0.7);
+    color: white;
+    width: 80%;
+    width: 80%;
+  }
+
+  mat-list-option[aria-selected="false"] {
+    width: 80%;
+  }
+
+  mat-tab-label-active {
+    background-color: #00ADEE !important;
+} 
+
+ .list {
+    font-size: 1rem;
+    color: rgba(0, 0, 0, .87);
+    text-align: left;
+    height: 40px;
+    margin-left: 32px;
+    margin-right: 40px;
+    padding-top: 16px;
+    padding-left: 16px;
+    display: block;
+    border-bottom: 1px solid rgba(0,0,0,.12);
+   }
+  
+  .list:hover {
+    font-weight: bold;
+    background-color: #9ecacf;
+  }
+
+  .col {
+    overflow-x: hidden;
+  }
+
+  

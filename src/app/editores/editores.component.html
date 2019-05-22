@@ -9,25 +9,50 @@
   </nav>
 </div>
 
-<!-- the code editor -->
-<div class="row mb-4">
-  <div class="col">
-      <h1>Javascript</h1>
-      <div class="code-editor" #codeEditorJ></div>
-  </div>
-  <br>
-  <div class="col">
-      <h1>HTML</h1>
-      <div class="code-editor" #codeEditorH></div>
-  </div>
-  <br>
-  <div class="col">
-      <h1>CSS</h1>
-      <div class="code-editor" #codeEditorC></div>
-  </div>
+<!--  code editor -->
+<div class="mat-elevation-z8">
+  <mat-tab-group class="example-container" mat-align-tabs="center" >>
+      <mat-tab label="Javascript">
+          <div class="col">
+              <div class="code-editor" #codeEditorJ></div>
+          </div>
+      </mat-tab>
+      <mat-tab label="HTML">
+          <div class="col">
+              <div class="code-editor" #codeEditorH></div>
+          </div>
+      </mat-tab>
+      <mat-tab label="CSS">
+          <div class="col">
+              <div class="code-editor" #codeEditorC></div>
+          </div>
+      </mat-tab>
+      <mat-tab label="DATA">
+          <div class="col">
+              <div class="code-editor" #codeEditorD></div>
+          </div>
+      </mat-tab>
+      <mat-tab class="mat-elevation-z8" label="LIBRERÍAS">
+        <div class="col">
+            <!-- <form class="md-form form-sm"> -->
+                <mat-form-field appearance="outline" class="filter" floatLabel="never" >
+                    <input matInput placeholder="Insertar Script" aria-label="State" >
+                </mat-form-field>
+           <!-- </form> <br> -->
+          <mat-selection-list  #libs  (selectionChange)="onSelection($event, libs.selectedOptions.selected)">
+            <mat-list-option  class="list" *ngFor="let lib of librerias" [value]='lib.valor' >
+              {{lib.nombre}}            :           {{lib.valor}}
+            </mat-list-option>
+          </mat-selection-list>
+          <br><br>
+        </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>
 
-<!-- run, clear & beautify buttons -->
+<br>
+
+<!-- run  beautify buttons -->
 <div class="row mb-4 justify-content-center mx-4">
     <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
         <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="beautifyContent()">
@@ -39,7 +64,13 @@
             Run
         </button>
     </div>
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+        <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="subir()">
+            Guardar
+        </button>
+    </div>
 </div>
+
 
 <div class="row mt-4">
     <div class="col">

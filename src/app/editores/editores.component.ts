@@ -1,21 +1,31 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { RestApiService } from '../shared/rest-api.service';
+import { LibDTO } from '../shared/lib-dto';
 
-import * as ace from 'ace-builds'; 
+import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/mode-html';
+import 'ace-builds/src-noconflict/mode-css';
+import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-cobalt';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-beautify';
 import { config } from 'rxjs';
+import { getMatScrollStrategyAlreadyAttachedError } from '@angular/cdk/overlay/typings/scroll/scroll-strategy';
+import { MatListOption } from '@angular/material';
+import { GuardsCheckStart } from '@angular/router';
 
 
-
-const THEME = 'ace/theme/cobalt'; 
-const COBALT = 'ace/theme/cobalt'; 
-const MONO = 'ace/theme/monokai'; 
+const THEME = 'ace/theme/cobalt';
+const COBALT = 'ace/theme/cobalt';
+const MONOKAI = 'ace/theme/monokai';
 const LANGJ = 'ace/mode/javascript';
-const LANGH = 'ace/mode/javascript';
-const LANGC = 'ace/mode/javascript';
+const LANGH = 'ace/mode/html';
+const LANGC = 'ace/mode/css';
+const LANGJSON = 'ace/mode/json';
+const FONTS = '';
+const FONTT = '';
 
 
 @Component({
@@ -23,75 +33,101 @@ const LANGC = 'ace/mode/javascript';
   templateUrl: './editores.component.html',
   styleUrls: ['./editores.component.css']
 })
-export class EditoresComponent implements OnInit {
+export class EditoresComponent implements AfterViewInit {
+
+  constructor(
+    public restApi: RestApiService,
+  ){}
 
   @ViewChild('codeEditorH') private codeEditorH: ElementRef;
   @ViewChild('codeEditorC') private codeEditorC: ElementRef;
   @ViewChild('codeEditorJ') private codeEditorJ: ElementRef;
+  @ViewChild('codeEditorD') private codeEditorD: ElementRef;
+
 
   private codeH: ace.Ace.Editor;
   private codeJ: ace.Ace.Editor;
   private codeC: ace.Ace.Editor;
+  private codeD: ace.Ace.Editor;
+  librerias: any = [];
+  calledLib: string[] = [];
+  selectedOptions: any = [];
+  aImportar: string = '';
+  devueltoCreate; any = [];
   private editorBeautify;
 
-  constructor() { }
 
-  ngOnInit() {
+  ngAfterViewInit() {
 
     this.configHTML();
     this.configCSS();
     this.configJS();
-    
+    this.configDATA();
+    this.configLIB();
+
   }
 
-  configHTML(){
+  configHTML() {
     const element = this.codeEditorH.nativeElement;
     const editorOptions = this.getEditorOptions();
     this.codeH = ace.edit(element, editorOptions);
     this.codeH.setTheme(THEME);
     this.codeH.getSession().setMode(LANGH);
     this.codeH.setShowFoldWidgets(true);
-    // hold reference to beautify extension
     this.editorBeautify = ace.require('ace/ext/beautify');
   }
 
-  configCSS(){
+  configCSS() {
     const element = this.codeEditorC.nativeElement;
     const editorOptions = this.getEditorOptions();
     this.codeC = ace.edit(element, editorOptions);
-    this.codeC.setTheme(MONO);
+    this.codeC.setTheme(THEME);
     this.codeC.getSession().setMode(LANGC);
     this.codeC.setShowFoldWidgets(true);
-    // hold reference to beautify extension
     this.editorBeautify = ace.require('ace/ext/beautify');
   }
 
-  configJS(){
+  configJS() {
     const element = this.codeEditorJ.nativeElement;
     const editorOptions = this.getEditorOptions();
     this.codeJ = ace.edit(element, editorOptions);
     this.codeJ.setTheme(THEME);
     this.codeJ.getSession().setMode(LANGJ);
     this.codeJ.setShowFoldWidgets(true);
-    // hold reference to beautify extension
     this.editorBeautify = ace.require('ace/ext/beautify');
+  }
+
+  configDATA() {
+    const element = this.codeEditorD.nativeElement;
+    const editorOptions = this.getEditorOptions();
+    this.codeD = ace.edit(element, editorOptions);
+    this.codeD.setTheme(MONOKAI);
+    this.codeD.setValue('[];');
+    this.codeD.getSession().setMode(LANGJSON);
+    this.codeD.setShowFoldWidgets(true);
+    this.editorBeautify = ace.require('ace/ext/beautify');
+  }
+
+  configLIB() {
+
+    this.getScripts();
   }
 
 
   private getEditorOptions(): Partial<ace.Ace.EditorOptions> & { enableBasicAutocompletion?: boolean; } {
     const basicEditorOptions: Partial<ace.Ace.EditorOptions> = {
         highlightActiveLine: true,
-        minLines: 14,
+        minLines: 16,
         maxLines: Infinity,
+        vScrollBarAlwaysVisible: false,
+        fontSize: 14,
+        fontFamily: 'Consolas',
     };
     const extraEditorOptions = { enableBasicAutocompletion: true };
     return Object.assign(basicEditorOptions, extraEditorOptions);
   }
 
-     /**
-   * @description
-   *  beautify the editor content, rely on Ace Beautify extension.
-   */
+
   public beautifyContent(): void {
     if (this.codeEditorH && this.codeEditorC && this.codeEditorJ && this.editorBeautify) {
         const sessionH = this.codeH.getSession();
@@ -100,39 +136,78 @@ export class EditoresComponent implements OnInit {
         this.editorBeautify.beautify(sessionC);
         const sessionJ = this.codeJ.getSession();
         this.editorBeautify.beautify(sessionJ);
+        const sessionD = this.codeD.getSession();
+        this.editorBeautify.beautify(sessionD);
     }
   }
 
+  getScripts(){
+    return this.restApi.getLibDTOs().subscribe((data) => {
+        this.librerias = data;
+      });
+  }
+
+  onSelection(e, v) {
+    this.calledLib = [];
+    this.aImportar = '';
+      for(let val of v){
+          this.calledLib.push(val.value);
+          this.aImportar = this.aImportar + ' ' + val.value;
+      }
+      console.log(this.aImportar);
+  }
+
   compile() {
-    // var html = document.getElementById("html");
-    // var css = document.getElementById("css");
-    // var js = document.getElementById("js");
 
     var html = this.codeH.getValue();
     var css = this.codeC.getValue();
     var js = this.codeJ.getValue();
+    var datos = this.codeD.getValue();
 
-     var element = document.getElementById("code") as HTMLIFrameElement;
-     var code = element.contentWindow.document;
-     const de3 = '<script src="https://d3js.org/d3.v5.js"></script>'
-     
+    var element = document.getElementById('code') as HTMLIFrameElement;
+    var code = element.contentWindow.document;
+
+    // d3 v3 : <script src="//d3js.org/d3.v3.min.js"></script>
+    // d3 v5 : <script src="https://d3js.org/d3.v5.js"></script>
+
     // document.body.onkeyup = function() {
-      code.open();
-      code.writeln(
-
-          de3+
-          html+
-            "<style>" +
-           css+
-          "</style>" +
-           "<script>" +
-           js+
-          "</script>"
-           
-          
+    code.open();
+    code.writeln(
+           this.aImportar +
+           html +
+          '<style>' +
+               css +
+          '</style>' +
+          '<script>' +
+              'var datosJson=' + datos +
+               js +
+          '</script>'
       );
-      code.close();
+    code.close();
     // };
   }
 
-}
+  subir() {
+    
+   this. devueltoCreate = [];
+    var html = this.codeH.getValue();
+    var css = this.codeC.getValue();
+    var js = this.codeJ.getValue();
+    var dato = this.codeD.getValue();
+    console.log('1 vez');
+
+    let proyecto = new Map();
+
+    proyecto['html'] =  html;
+    proyecto['css'] =  css;
+    proyecto['script'] = js;
+    proyecto['dato'] =  dato;
+
+    if (window.confirm('Confirmar ?')) {
+      this.restApi.createProyectoDTO(proyecto).subscribe(data => {
+              console.log("hola");
+       });
+      }
+
+    }
+  }
