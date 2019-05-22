@@ -11,7 +11,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {MatTabsModule} from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatListModule} from '@angular/material/list';
-import { MatButtonModule, MatFormFieldModule, MatInputModule, MatRippleModule } from '@angular/material';
+import { MatButtonModule, MatFormFieldModule, MatInputModule, MatRippleModule, MatIconModule,  MatSortModule,
+  MatTableModule, } from '@angular/material';
 
 
 @NgModule({
@@ -31,6 +32,9 @@ import { MatButtonModule, MatFormFieldModule, MatInputModule, MatRippleModule } 
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatSortModule,
+    MatTableModule,
   ],
   exports: [
    MatButtonModule,

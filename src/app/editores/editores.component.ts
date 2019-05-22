@@ -13,8 +13,11 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-beautify';
 import { config } from 'rxjs';
 import { getMatScrollStrategyAlreadyAttachedError } from '@angular/cdk/overlay/typings/scroll/scroll-strategy';
-import { MatListOption } from '@angular/material';
+import { MatListOption, MatSelectionList, MatOption, MatPaginator, MatTableDataSource } from '@angular/material';
 import { GuardsCheckStart } from '@angular/router';
+import { SelectionModel } from '@angular/cdk/collections';
+import { compileBaseDefFromMetadata } from '@angular/compiler';
+import { ProyectoDto } from '../shared/proyecto-dto';
 
 
 const THEME = 'ace/theme/cobalt';
@@ -44,26 +47,36 @@ export class EditoresComponent implements AfterViewInit {
   @ViewChild('codeEditorJ') private codeEditorJ: ElementRef;
   @ViewChild('codeEditorD') private codeEditorD: ElementRef;
 
+  // @ViewChild('pros') selectionPro: MatSelectionList;
+  // @ViewChild('optionsel') optionsel: MatListOption;
+
+  dataSource = new MatTableDataSource();
 
   private codeH: ace.Ace.Editor;
   private codeJ: ace.Ace.Editor;
   private codeC: ace.Ace.Editor;
   private codeD: ace.Ace.Editor;
+  private editorBeautify;
   librerias: any = [];
   calledLib: string[] = [];
   selectedOptions: any = [];
+  selectedProyecto:any=[];
   aImportar: string = '';
-  devueltoCreate; any = [];
-  private editorBeautify;
+  listadoProyectos: any = [];
+
+  columnsToDisplay: string[] = [/*'ident',*/ 'nombre' , 'import', 'edit', 'del'];
 
 
   ngAfterViewInit() {
+
+    // this.selectionPro.selectedOptions = new SelectionModel<MatListOption>(false);
 
     this.configHTML();
     this.configCSS();
     this.configJS();
     this.configDATA();
     this.configLIB();
+    this.configProy();
 
   }
 
@@ -113,6 +126,11 @@ export class EditoresComponent implements AfterViewInit {
     this.getScripts();
   }
 
+  configProy() {
+
+    this.getProyectos();
+  }
+
 
   private getEditorOptions(): Partial<ace.Ace.EditorOptions> & { enableBasicAutocompletion?: boolean; } {
     const basicEditorOptions: Partial<ace.Ace.EditorOptions> = {
@@ -141,20 +159,70 @@ export class EditoresComponent implements AfterViewInit {
     }
   }
 
-  getScripts(){
+  getScripts() {
     return this.restApi.getLibDTOs().subscribe((data) => {
         this.librerias = data;
+      });
+  }
+
+  getProyectos() {
+    return this.restApi.getProyectoDTOs().subscribe((data) => {
+        this.listadoProyectos = data;
+        this.dataSource = new MatTableDataSource(this.listadoProyectos);
       });
   }
 
   onSelection(e, v) {
     this.calledLib = [];
     this.aImportar = '';
-      for(let val of v){
+    for(let val of v){
           this.calledLib.push(val.value);
           this.aImportar = this.aImportar + ' ' + val.value;
       }
-      console.log(this.aImportar);
+  }
+
+  /**
+   * Importacion desde lista paso 1
+   * @param e
+   * @param v
+   */
+  onSelectionProyecto(e, v) {
+    this.selectedProyecto = '';
+    for(let val of v){
+      this.selectedProyecto = val.value;
+    }
+  }
+
+  /**
+   * Importacion desde lista paso 2
+   */
+  importarProyecto(){
+    this.librerias = [];
+    this.aImportar = '';
+    if (window.confirm('Confirmar importación?')) {
+      console.log(this.selectedProyecto.modeloHtml.valor);
+      if (this.selectedProyecto.modeloHtml != null) {
+        this.codeH.setValue(this.selectedProyecto.modeloHtml.valor);
+      }
+      if (this.selectedProyecto.modeloCss != null) {
+        this.codeC.setValue(this.selectedProyecto.modeloCss.valor);
+      }
+      if (this.selectedProyecto.modeloJs != null) {
+        this.codeJ.setValue(this.selectedProyecto.modeloJs.valor);
+      }
+      if (this.selectedProyecto.modeloDato != null && this.selectedProyecto.modeloDato.equals('[];')) {
+        this.codeD.setValue(this.selectedProyecto.modeloDato.valor);
+      }
+      if (this.selectedProyecto.librerias != null) {
+        for (let libP of this.selectedProyecto.librerias) {
+          this.librerias.push(libP);
+          this.aImportar = this.aImportar + ' ' + libP.valor;
+        }
+
+
+      }
+      this.compile();
+    }
   }
 
   compile() {
@@ -169,7 +237,7 @@ export class EditoresComponent implements AfterViewInit {
 
     // d3 v3 : <script src="//d3js.org/d3.v3.min.js"></script>
     // d3 v5 : <script src="https://d3js.org/d3.v5.js"></script>
-
+    console.log(this.aImportar);
     // document.body.onkeyup = function() {
     code.open();
     code.writeln(
@@ -179,7 +247,7 @@ export class EditoresComponent implements AfterViewInit {
                css +
           '</style>' +
           '<script>' +
-              'var datosJson=' + datos +
+              'var datosJson=' + datos + '\n' +
                js +
           '</script>'
       );
@@ -188,26 +256,186 @@ export class EditoresComponent implements AfterViewInit {
   }
 
   subir() {
-    
-   this. devueltoCreate = [];
-    var html = this.codeH.getValue();
-    var css = this.codeC.getValue();
-    var js = this.codeJ.getValue();
-    var dato = this.codeD.getValue();
-    console.log('1 vez');
 
-    let proyecto = new Map();
+   var html = this.codeH.getValue();
+   var css = this.codeC.getValue();
+   var js = this.codeJ.getValue();
+   var dato = this.codeD.getValue();
 
-    proyecto['html'] =  html;
-    proyecto['css'] =  css;
-    proyecto['script'] = js;
-    proyecto['dato'] =  dato;
+   var mapaImps = new Map();
+   var count = 0;
+   for(let imp of this.calledLib){
+      mapaImps[count] = imp;
+      count++;
+   }
 
-    if (window.confirm('Confirmar ?')) {
+   let proyecto = new Map();
+
+   proyecto['html'] =  {1: html};
+   proyecto['css'] = {1: css};
+   proyecto['script'] = {1: js};
+   proyecto['dato'] =  {1: dato};
+   proyecto['imports'] =  mapaImps;
+
+   if (window.confirm('Confirmar subida de proyecto?')) {
       this.restApi.createProyectoDTO(proyecto).subscribe(data => {
-              console.log("hola");
        });
       }
 
     }
+
+  onDelete(modelo: ProyectoDto){
+      if(modelo.ident != null){
+        if (window.confirm('Confirmar ?')) {
+          this.restApi.deleteProyectoDTO(modelo.ident).subscribe(data => {
+            this.dataSource.data = this.dataSource.data.filter(i => i !== modelo);
+         });
+        //  this.restApi.deleteProyectoDTO(modelo.ident);
+        //  this.dataSource.data = this.dataSource.data.filter(i => i !== modelo);
+      }
+    }
   }
+
+  /**
+   * Importacion desde tabla
+   * @param modelo
+   */
+  onImport(modelo: ProyectoDto){
+
+    this.librerias = [];
+    this.aImportar = '';
+    var proyecto =  this.listadoProyectos.find(x => x.ident === modelo.ident);
+
+    if (window.confirm('Confirmar importación?')) {
+
+      if (proyecto.modeloHtml != null) {
+        this.codeH.setValue(proyecto.modeloHtml.valor);
+      }
+      if (proyecto.modeloCss != null) {
+        this.codeC.setValue(proyecto.modeloCss.valor);
+      }
+      if (proyecto.modeloJs != null) {
+        this.codeJ.setValue(proyecto.modeloJs.valor);
+      }
+      if (proyecto.modeloDato != null) {
+        this.codeD.setValue(proyecto.modeloDato.valor);
+      }else{
+        this.codeD.setValue('[];');
+      }
+
+      if (proyecto.librerias != null) {
+        for (let libP of proyecto.librerias) {
+          this.librerias.push(libP);
+          this.aImportar = this.aImportar + ' ' + libP.valor;
+        }
+
+      }
+      this.compile();
+    }
+  }
+
+  onEdit(modelo) {
+
+    // console.log(modelo);
+
+    let proyecto = new Map();
+
+    proyecto['ident'] = {1: modelo.ident};
+    proyecto['nombre'] =  {1: modelo.nombre};
+    proyecto['html'] =  {1: this.checkHtml(modelo)};
+    proyecto['css'] =  {1: this.checkCss(modelo)};
+    proyecto['script'] = {1: this.checkScript(modelo)};
+    proyecto['dato'] =  {1: this.checkDato(modelo)};
+
+    ////////////////////////////////
+    var mapalib = new Map();
+     for(let val of modelo.librerias){
+      mapalib[val.nombre] = val.valor;
+    }
+
+    var b = modelo.librerias.reduce(
+      function(reduced,next){
+         Object.keys(next).forEach(function(key){reduced[key]=next[key];});
+         return reduced;
+      }
+    );
+
+    var mapaImps = new Map();
+   var count = 0;
+   for(let imp of this.calledLib){
+      mapaImps[count] = imp;
+      count++;
+   }
+
+  /////////////////////////////////////
+    console.log(mapalib);
+    proyecto['librerias'] =  mapalib;
+
+
+   // console.log(proyecto);
+     this.updateProyecto( modelo.ident, proyecto);
+  }
+
+  updateProyecto(id, unmod: Map<string, string>) {
+    if (window.confirm('Confirmar ?')) {
+      this.restApi.updateProyectoDTO(id, unmod).subscribe(data => {
+
+       });
+      }
+   }
+
+  checkHtml(modelo){
+     if(modelo.modeloHtml == null){
+       return  null;
+     } else if(Object.prototype.hasOwnProperty.call(modelo.modeloHtml, 'ident')){
+       return  modelo.modeloHtml.ident;
+     }
+    }
+
+    checkCss(modelo){
+      if(modelo.modeloCss == null){
+        return  null;
+      } else if(Object.prototype.hasOwnProperty.call(modelo.modeloCss, 'ident')){
+        return  modelo.modeloCss.ident;
+      }
+     }
+
+     checkScript(modelo){
+      if(modelo.modeloJs == null){
+        return  null;
+      } else if(Object.prototype.hasOwnProperty.call(modelo.modeloJs, 'ident')){
+        return  modelo.modeloJs.ident;
+      }
+     }
+
+     checkDato(modelo){
+      if(modelo.modeloDato == null){
+        return  null;
+      } else if(Object.prototype.hasOwnProperty.call(modelo.modeloDato, 'ident')){
+        return  modelo.modeloDato.ident;
+      }
+     }
+
+      // else if(Object.prototype.hasOwnProperty.call(modelo.modeloDato, 'ident')){
+      //   return  modelo.modeloDato.ident;
+      // }
+    
+
+    checkImports(modelo){
+      if(modelo.imports == null){
+        return  null;
+      } else {
+        return modelo.imports;
+      }
+
+
+      // else if(Object.prototype.hasOwnProperty.call(modelo.imports, 'ident')){
+      //    return  modelo.modeloDato.ident;
+      // }
+    }
+
+
+
+}
+
+

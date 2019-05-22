@@ -362,10 +362,10 @@ export class RestApiService {
   }
 
   // HttpClient API post() method => Create dato
-  createProyectoDTO(pro: Map<string, string>){
+  createProyectoDTO(pro: Map<string, any>){
     return this.http.post(this.apiURL + '/proyectos/add/' , pro, this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -383,7 +383,7 @@ export class RestApiService {
   deleteProyectoDTO(id){
     return this.http.delete<ProyectoDto>(this.apiURL + '/proyectos/delete/' + id, this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }

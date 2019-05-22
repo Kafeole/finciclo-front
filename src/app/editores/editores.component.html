@@ -32,7 +32,7 @@
               <div class="code-editor" #codeEditorD></div>
           </div>
       </mat-tab>
-      <mat-tab class="mat-elevation-z8" label="LIBRERÍAS">
+      <mat-tab class="mat-elevation-z8" label="Librerías">
         <div class="col">
             <!-- <form class="md-form form-sm"> -->
                 <mat-form-field appearance="outline" class="filter" floatLabel="never" >
@@ -40,13 +40,78 @@
                 </mat-form-field>
            <!-- </form> <br> -->
           <mat-selection-list  #libs  (selectionChange)="onSelection($event, libs.selectedOptions.selected)">
-            <mat-list-option  class="list" *ngFor="let lib of librerias" [value]='lib.valor' >
+            <mat-list-option  #optionsel  class="list" *ngFor="let lib of librerias" [value]='lib.valor' >
               {{lib.nombre}}            :           {{lib.valor}}
             </mat-list-option>
           </mat-selection-list>
           <br><br>
         </div>
     </mat-tab>
+    <mat-tab label="Opciones">
+      <div class="col">
+
+     <!--     <br><mat-divider></mat-divider><br> -->
+
+          <!-- <h4 mat-line>Proyectos</h4>
+          <mat-selection-list  #pros  (selectionChange)="onSelectionProyecto($event, pros.selectedOptions.selected)">
+              <mat-list-option class="listP" *ngFor="let pro of listadoProyectos" [value]='pro' >
+                {{pro.nombre}}
+              </mat-list-option>
+          </mat-selection-list>
+          <br>
+          <button type="button" id="btnimp" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="importarProyecto()">
+              Importar
+          </button> -->
+
+
+          <br><mat-divider></mat-divider><br><br>
+         <div class="example-container mat-elevation-z8">
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" >
+
+              <!-- <ng-container matColumnDef="ident" sticky>
+                    <th  id="idhead" mat-header-cell *matHeaderCellDef  >ID</th>
+                    <td id="idcell" mat-cell *matCellDef="let mo">{{mo.ident}}</td>
+              </ng-container> -->
+
+              <ng-container matColumnDef="nombre">
+                  <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                  <td mat-cell *matCellDef="let mo">
+                    <input mat-input [(ngModel)]="mo.nombre"/>
+                  </td>
+            </ng-container>
+
+            <ng-container matColumnDef="import">
+                <th mat-header-cell *matHeaderCellDef style="width: 50px;"></th>
+                <td mat-cell *matCellDef="let row" style="width: 50px;">
+                    <button (click)='onImport(row)' class="btn btn-outline-primary">Importar</button>
+                </td>
+              </ng-container>
+
+
+            <ng-container matColumnDef="edit">
+                <th mat-header-cell *matHeaderCellDef style="width: 50px;"></th>
+                <td mat-cell *matCellDef="let row" style="width: 50px;">
+                    <button (click)='onEdit(row)' class="btn btn-outline-primary">Editar</button>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="del" >
+                  <th mat-header-cell *matHeaderCellDef style="width: 50px;"></th>
+                  <td mat-cell *matCellDef="let row"  style="width: 50px;">
+                      <button (click)='onDelete(row)' class="btn btn-outline-primary">Borrar</button>
+                  </td>
+              </ng-container>
+
+
+             <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+             <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+
+          </table>
+          <br><br>
+          <!-- <mat-paginator [pageSizeOptions]="[10, 20, 35]" showFirstLastButtons></mat-paginator> -->
+          </div>
+      </div>
+  </mat-tab>
   </mat-tab-group>
 </div>
 
