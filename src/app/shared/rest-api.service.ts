@@ -41,7 +41,7 @@ export class RestApiService {
   // PROVEEDOR
 
   // HttpClient API get() method => Fetch html list
-  getHtmles(): Observable<HtmlDTO> {
+  getHtmls(): Observable<HtmlDTO> {
     return this.http.get<HtmlDTO>(this.apiURL + '/html/all')
     .pipe(
       retry(1),
@@ -185,7 +185,7 @@ export class RestApiService {
   createJsDTO(js): Observable<JsDTO> {
     return this.http.post<JsDTO>(this.apiURL + '/jss/add', JSON.stringify(js), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -194,7 +194,7 @@ export class RestApiService {
   updateJsDTO(id, js): Observable<JsDTO> {
     return this.http.put<JsDTO>(this.apiURL + '/jss/update/' + id, JSON.stringify(js), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -203,7 +203,7 @@ export class RestApiService {
   deleteJsDTO(id){
     return this.http.delete<JsDTO>(this.apiURL + '/jss/delete/' + id, this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -242,7 +242,7 @@ export class RestApiService {
   createDatoDTO(dato): Observable<DatoDTO> {
     return this.http.post<DatoDTO>(this.apiURL + '/datos/add', JSON.stringify(dato), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -251,7 +251,7 @@ export class RestApiService {
   updateDatoDTO(id, dato): Observable<DatoDTO> {
     return this.http.put<DatoDTO>(this.apiURL + '/datos/update/' + id, JSON.stringify(dato), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -260,7 +260,7 @@ export class RestApiService {
   deleteDatoDTO(id){
     return this.http.delete<DatoDTO>(this.apiURL + '/datos/delete/' + id, this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -305,10 +305,10 @@ export class RestApiService {
   }
 
   // HttpClient API post() method => Create dato
-  createLibDTO(lib): Observable<LibDTO> {
+  createLibDTO(lib: Map<string, string>) {
     return this.http.post<LibDTO>(this.apiURL + '/libs/add', JSON.stringify(lib), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -317,7 +317,7 @@ export class RestApiService {
   updateLibDTO(id, lib): Observable<LibDTO> {
     return this.http.put<LibDTO>(this.apiURL + '/libs/update/' + id, JSON.stringify(lib), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -326,7 +326,7 @@ export class RestApiService {
   deleteLibDTO(id){
     return this.http.delete<LibDTO>(this.apiURL + '/libs/delete/' + id, this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
       catchError(this.handleError)
     )
   }
@@ -382,6 +382,27 @@ export class RestApiService {
   // HttpClient API delete() method => Delete dato
   deleteProyectoDTO(id){
     return this.http.delete<ProyectoDto>(this.apiURL + '/proyectos/delete/' + id, this.httpOptions)
+    .pipe(
+      retry(0),
+      catchError(this.handleError)
+    )
+  }
+
+
+  ////////////////////////////////////////////////////////////////
+  // MidwayDTO
+
+  deleteLibsOfProyectoDTO(identpro, identlib){
+    return this.http.delete(this.apiURL + '/midway/deletelibs/' + identpro + '/' + identlib, this.httpOptions)
+    .pipe(
+      retry(0),
+      catchError(this.handleError)
+    )
+  }
+
+  // HttpClient API put() method => Update midway
+  createMidwayDTO(ident, mid: Map<string, string>){
+    return this.http.post(this.apiURL + '/midway/add/'+ ident , mid, this.httpOptions)
     .pipe(
       retry(0),
       catchError(this.handleError)

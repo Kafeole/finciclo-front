@@ -47,9 +47,6 @@ export class EditoresComponent implements AfterViewInit {
   @ViewChild('codeEditorJ') private codeEditorJ: ElementRef;
   @ViewChild('codeEditorD') private codeEditorD: ElementRef;
 
-  // @ViewChild('pros') selectionPro: MatSelectionList;
-  // @ViewChild('optionsel') optionsel: MatListOption;
-
   dataSource = new MatTableDataSource();
 
   private codeH: ace.Ace.Editor;
@@ -58,18 +55,32 @@ export class EditoresComponent implements AfterViewInit {
   private codeD: ace.Ace.Editor;
   private editorBeautify;
   librerias: any = [];
+  libreriasProyecto: any = [];
   calledLib: string[] = [];
   selectedOptions: any = [];
   selectedProyecto:any=[];
   aImportar: string = '';
+  scriptsaEliminar: any = [];
   listadoProyectos: any = [];
+  newlibruta: string;
+  newlibnombre: string;
+  currentProyectoName: string;
+  currentProyectoId: string;
+  quiereimportar: string;
 
-  columnsToDisplay: string[] = [/*'ident',*/ 'nombre' , 'import', 'edit', 'del'];
+  sino = [
+    {'op': 'Si', 'checked': true},
+    {'op': 'No', 'checked': false}
+  ];
+
+  columnsToDisplay: string[] = [ 'nombre' , 'import', 'edit', 'del'];
 
 
   ngAfterViewInit() {
 
-    // this.selectionPro.selectedOptions = new SelectionModel<MatListOption>(false);
+    this.currentProyectoName = '';
+    this.currentProyectoId = '';
+    this.quiereimportar = this.sino[1].op;
 
     this.configHTML();
     this.configCSS();
@@ -181,50 +192,6 @@ export class EditoresComponent implements AfterViewInit {
       }
   }
 
-  /**
-   * Importacion desde lista paso 1
-   * @param e
-   * @param v
-   */
-  onSelectionProyecto(e, v) {
-    this.selectedProyecto = '';
-    for(let val of v){
-      this.selectedProyecto = val.value;
-    }
-  }
-
-  /**
-   * Importacion desde lista paso 2
-   */
-  importarProyecto(){
-    this.librerias = [];
-    this.aImportar = '';
-    if (window.confirm('Confirmar importación?')) {
-      console.log(this.selectedProyecto.modeloHtml.valor);
-      if (this.selectedProyecto.modeloHtml != null) {
-        this.codeH.setValue(this.selectedProyecto.modeloHtml.valor);
-      }
-      if (this.selectedProyecto.modeloCss != null) {
-        this.codeC.setValue(this.selectedProyecto.modeloCss.valor);
-      }
-      if (this.selectedProyecto.modeloJs != null) {
-        this.codeJ.setValue(this.selectedProyecto.modeloJs.valor);
-      }
-      if (this.selectedProyecto.modeloDato != null && this.selectedProyecto.modeloDato.equals('[];')) {
-        this.codeD.setValue(this.selectedProyecto.modeloDato.valor);
-      }
-      if (this.selectedProyecto.librerias != null) {
-        for (let libP of this.selectedProyecto.librerias) {
-          this.librerias.push(libP);
-          this.aImportar = this.aImportar + ' ' + libP.valor;
-        }
-
-
-      }
-      this.compile();
-    }
-  }
-
   compile() {
 
     var html = this.codeH.getValue();
@@ -237,7 +204,7 @@ export class EditoresComponent implements AfterViewInit {
 
     // d3 v3 : <script src="//d3js.org/d3.v3.min.js"></script>
     // d3 v5 : <script src="https://d3js.org/d3.v5.js"></script>
-    console.log(this.aImportar);
+
     // document.body.onkeyup = function() {
     code.open();
     code.writeln(
@@ -290,8 +257,6 @@ export class EditoresComponent implements AfterViewInit {
           this.restApi.deleteProyectoDTO(modelo.ident).subscribe(data => {
             this.dataSource.data = this.dataSource.data.filter(i => i !== modelo);
          });
-        //  this.restApi.deleteProyectoDTO(modelo.ident);
-        //  this.dataSource.data = this.dataSource.data.filter(i => i !== modelo);
       }
     }
   }
@@ -302,11 +267,14 @@ export class EditoresComponent implements AfterViewInit {
    */
   onImport(modelo: ProyectoDto){
 
-    this.librerias = [];
-    this.aImportar = '';
-    var proyecto =  this.listadoProyectos.find(x => x.ident === modelo.ident);
 
     if (window.confirm('Confirmar importación?')) {
+
+      this.aImportar = '';
+      var proyecto =  this.listadoProyectos.find(x => x.ident === modelo.ident);
+      this.currentProyectoId = modelo.ident.toString();
+      this.currentProyectoName = modelo.nombre;
+      this.scriptsaEliminar = [];
 
       if (proyecto.modeloHtml != null) {
         this.codeH.setValue(proyecto.modeloHtml.valor);
@@ -323,20 +291,20 @@ export class EditoresComponent implements AfterViewInit {
         this.codeD.setValue('[];');
       }
 
+      this.libreriasProyecto = [];
       if (proyecto.librerias != null) {
         for (let libP of proyecto.librerias) {
-          this.librerias.push(libP);
-          this.aImportar = this.aImportar + ' ' + libP.valor;
+          console.log(libP);
+          this.libreriasProyecto.push(libP);
+          this.aImportar = this.aImportar + ' \n' + libP.valor;
         }
-
       }
       this.compile();
+      this.scriptsaEliminar = [];
     }
   }
 
   onEdit(modelo) {
-
-    // console.log(modelo);
 
     let proyecto = new Map();
 
@@ -347,33 +315,14 @@ export class EditoresComponent implements AfterViewInit {
     proyecto['script'] = {1: this.checkScript(modelo)};
     proyecto['dato'] =  {1: this.checkDato(modelo)};
 
-    ////////////////////////////////
     var mapalib = new Map();
-     for(let val of modelo.librerias){
+    for(let val of modelo.librerias){
       mapalib[val.nombre] = val.valor;
     }
-
-    var b = modelo.librerias.reduce(
-      function(reduced,next){
-         Object.keys(next).forEach(function(key){reduced[key]=next[key];});
-         return reduced;
-      }
-    );
-
-    var mapaImps = new Map();
-   var count = 0;
-   for(let imp of this.calledLib){
-      mapaImps[count] = imp;
-      count++;
-   }
-
-  /////////////////////////////////////
     console.log(mapalib);
     proyecto['librerias'] =  mapalib;
 
-
-   // console.log(proyecto);
-     this.updateProyecto( modelo.ident, proyecto);
+    this.updateProyecto( modelo.ident, proyecto);
   }
 
   updateProyecto(id, unmod: Map<string, string>) {
@@ -416,11 +365,6 @@ export class EditoresComponent implements AfterViewInit {
       }
      }
 
-      // else if(Object.prototype.hasOwnProperty.call(modelo.modeloDato, 'ident')){
-      //   return  modelo.modeloDato.ident;
-      // }
-    
-
     checkImports(modelo){
       if(modelo.imports == null){
         return  null;
@@ -428,13 +372,60 @@ export class EditoresComponent implements AfterViewInit {
         return modelo.imports;
       }
 
-
-      // else if(Object.prototype.hasOwnProperty.call(modelo.imports, 'ident')){
-      //    return  modelo.modeloDato.ident;
-      // }
     }
 
+    /**
+     * Añade una libreria a t_lib
+     */
+    addLib() {
 
+        var libaanadir = new Map();
+        libaanadir['valor'] = this.newlibruta;
+        libaanadir['nombre'] = this.newlibnombre;
+        libaanadir['proyecto'] = this.currentProyectoId;
+        libaanadir['deseo'] = this.quiereimportar;
+
+        if (window.confirm('Confirmar ?')) {
+           this.restApi.createLibDTO(libaanadir).subscribe(data => {
+
+         });
+        }
+
+    }
+
+  onSelectiondelProyecto(e, v) {
+      this.scriptsaEliminar = [];
+      for(let lib of v){
+          console.log(lib);
+          console.log(lib.ident);
+          this.scriptsaEliminar.push(lib.value);
+       }
+  }
+
+  removeLib() {
+    if (window.confirm('Confirmar ?')) {
+      console.log(this.scriptsaEliminar);
+      for(let id of this.scriptsaEliminar){
+        this.restApi.deleteLibsOfProyectoDTO(this.currentProyectoId, id).subscribe(data => {
+        });
+      }
+      this.scriptsaEliminar = [];
+    }
+  }
+
+
+
+  updateLib(){
+    var mapaImps = new Map();
+    var count = 0;
+    for(let imp of this.calledLib){
+       mapaImps[count] = imp;
+       count++;
+    }
+        this.restApi.createMidwayDTO(this.currentProyectoId, mapaImps).subscribe(data => {
+        });
+
+  }
 
 }
 
