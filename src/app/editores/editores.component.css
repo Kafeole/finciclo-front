@@ -5,7 +5,7 @@
 }
 
 div.code-editor {
-    max-height: 170vh;
+    max-height: infinite;
     overflow-y: visible;
 }
 
@@ -70,7 +70,7 @@ div.label-box {
   }
 
   .mat-header-cell {
-    background-color: /*#980000*/ rgba(0, 139, 139, 0.7);
+    /* background-color: rgba(0, 139, 139, 0.7); */
       font-size: 1.2em;
 
   }
@@ -144,10 +144,5 @@ div.label-box {
     }
 
 
-    #editor{
-
-    }
-
-    #editor{
-      
-    }
+ 
+    

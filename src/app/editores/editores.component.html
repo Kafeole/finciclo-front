@@ -1,20 +1,21 @@
 <link href="https://fonts                                                                                        .googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<div class="container h-100 mt-4">
+<div class="container h-100 mt-4" style=" padding-left: 0; padding-right: 0 !important">
 
-    <div>
+    <!-- <div> -->
 <!-- Cabecera -->
-        <nav class="navbar navbar-light bg-light ">
+        <!-- <nav class="navbar navbar-light bg-light " style=" padding-left: 0; padding-right: 0 !important">
             <div class="container text-center p-2 ">
-                 <span class="mx-auto text-bold">Vanyl                                                           .io</span>
+                 <span class="mx-auto text-bold">Vanyl.io</span>
             </div>
         </nav>
-    </div>
-    
-    <div id="both">
+    </div> -->
 
-    <div id="editors">
+  <!-- <div id="both"> -->
+
+    <!-- <div id="editors"> -->
+
 <!--  code editor -->
-         <div class="mat-elevation-z8">
+         <div class="navbar navbar-light bg-light " >
          <mat-tab-group class="example-container" mat-align-tabs="center" >
              <mat-tab label="Javascript">
                 <div class="code-editor" #codeEditorJ></div>
@@ -29,62 +30,62 @@
                  <div class="code-editor" #codeEditorD></div>
              </mat-tab>
 
-         <mat-tab class="mat-elevation-z8" label="Librerías">
-            <div class="form-group">
-              <input  class="form-control"  [(ngModel)]="newlibruta" placeholder="Añada un nuevo script a la librería">
-              <input  class="form-control"  [(ngModel)]="newlibnombre" placeholder="Nombre la libreria">
-              <small id="emailHelp" class="form-text text-muted">Deberá seleccionarla una vez añadida.</small>
-              <br/>
-              <p>Asociar script al proyecto actual ?</p>
-              <mat-radio-group
-                   aria-labelledby="example-radio-group-label"
-                   class="example-radio-group"
-                   [(ngModel)]="quiereimportar">
-                   <mat-radio-button class="example-radio-button" *ngFor="let opcion of sino"  [value]="opcion.op">
-                        {{opcion.op}}
+            <mat-tab  label="Librerías">
+              <div class="form-group">
+                <input  class="form-control"  [(ngModel)]="newlibruta" placeholder="Añada un nuevo script a la librería">
+                <input  class="form-control"  [(ngModel)]="newlibnombre" placeholder="Nombre la libreria">
+              <!-- <small id="emailHelp" class="form-text text-muted">Deberá seleccionarla una vez añadida.</small> -->
+                <br/>
+                 <p>Asociar script al proyecto actual ?</p>
+                 <mat-radio-group
+                     aria-labelledby="example-radio-group-label"
+                     class="example-radio-group"
+                     [(ngModel)]="quiereimportar">
+                     <mat-radio-button class="example-radio-button" *ngFor="let opcion of sino"  [value]="opcion.op">
+                          {{opcion.op}}
                     </mat-radio-button>
-              </mat-radio-group>
+                </mat-radio-group>
 
-            </div>
+                </div>
 
-            <button type="submit" (click)="addLib()" class="btn btn-primary">Submit</button>
+                <button type="submit" (click)="addLib()" class="btn btn-primary">Submit</button>
 
-            <br/>
-         <!-- <mat-divider></mat-divider> -->
-            <br/>
+                <br/>
+               <!-- <mat-divider></mat-divider> -->
+                 <br/>
 
-         <div class="label-box border"><span class="mx-4 font-weight-light">Repositorios de scripts</span></div>
-         <mat-selection-list  #libs  (selectionChange)="onSelection($event, libs.selectedOptions.selected)">
-            <mat-list-option  #optionsel  class="list" *ngFor="let lib of librerias" [value]='lib.valor' >
-              {{lib.nombre}}            :           {{lib.valor}}
-            </mat-list-option>
-        </mat-selection-list>
+               <div class="label-box border"><span class="mx-4 font-weight-light">Repositorios de scripts</span></div>
+              <mat-selection-list  #libs  (selectionChange)="onSelection($event, libs.selectedOptions.selected)">
+                  <mat-list-option  #optionsel  class="list" *ngFor="let lib of librerias" [value]='lib.valor' >
+                     {{lib.nombre}}            :           {{lib.valor}}
+                 </mat-list-option>
+             </mat-selection-list>
 
-        <br/><br/>
-        <button type="submit" (click)="updateLib()" class="btn btn-primary">Actualizar</button>
-        <br><br>
+              <br/><br/>
+              <button type="submit" *ngIf="!notImported" (click)="updateLib()" class="btn btn-primary">Actualizar</button>
+               <br><br>
 
-        <div class="label-box border"><span class="mx-4 font-weight-light">Script asociados al proyecto</span></div>
-         <mat-selection-list  #libsdelproyecto  (selectionChange)="onSelectiondelProyecto($event, libsdelproyecto.selectedOptions.selected)">
-            <mat-list-option  #optionsel  class="list" *ngFor="let lib of libreriasProyecto" [value]='lib.ident' >
-              {{lib.nombre}}            :           {{lib.valor}}
-            </mat-list-option>
-        </mat-selection-list>
+              <div class="label-box border" *ngIf="!notImported"><span class="mx-4 font-weight-light" >Script asociados al proyecto</span></div>
+              <mat-selection-list  #libsdelproyecto  (selectionChange)="onSelectiondelProyecto($event, libsdelproyecto.selectedOptions.selected)">
+                  <mat-list-option  #optionsel  class="list" *ngFor="let lib of libreriasProyecto" [value]='lib.ident' >
+                         {{lib.nombre}}            :           {{lib.valor}}
+                  </mat-list-option>
+              </mat-selection-list>
 
-        <br/><br/>
-        <button type="submit" (click)="removeLib()" class="btn btn-primary">Eliminar</button>
+              <br/><br/>
+              <button type="submit" *ngIf="!notImported" (click)="removeLib()"  class="btn btn-primary">Eliminar</button>
 
-        <br><br>
+              <br><br>
         <!-- <mat-divider></mat-divider> -->
 
+         </mat-tab>
 
-       </mat-tab>
-
-       <mat-tab label="Opciones">
-         <div class="example-container mat-elevation-z8">
-          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" >
+       <mat-tab label="Proyectos"  style=" overflow: hidden!important">
+          <!-- class="example-container mat-elevation-z8" -->
+         <div class="navbar navbar-light bg-light ">
+          <table mat-table [dataSource]="dataSource" class="bg-light" >
               <ng-container matColumnDef="nombre">
-                  <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                  <th mat-header-cell *matHeaderCellDef></th>
                   <td mat-cell *matCellDef="let mo">
                     <input mat-input [(ngModel)]="mo.nombre"/>
                   </td>
@@ -101,14 +102,14 @@
             <ng-container matColumnDef="edit">
                 <th mat-header-cell *matHeaderCellDef style="width: 50px;"></th>
                 <td mat-cell *matCellDef="let row" style="width: 50px;">
-                    <button (click)='onEdit(row)' class="btn btn-outline-primary">Editar</button>
+                    <button (click)='onEdit(row)' class="btn btn-outline-primary">Editar Nombre</button>
                 </td>
               </ng-container>
 
               <ng-container matColumnDef="del" >
                   <th mat-header-cell *matHeaderCellDef style="width: 50px;"></th>
                   <td mat-cell *matCellDef="let row"  style="width: 50px;">
-                      <button (click)='onDelete(row)' class="btn btn-outline-primary">Borrar</button>
+                      <button (click)='onDelete(row)'  class="btn btn-outline-primary">Borrar</button>
                   </td>
               </ng-container>
 
@@ -126,34 +127,42 @@
 
         <br>
 
-<!-- run  beautify buttons -->
-        <div class="row mb-4 justify-content-center mx-4">
-            <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-                <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="beautifyContent()">
+<!-- botones middle -->
+        <div class="row mb-4 justify-content-center mx-4" >
+            <!-- <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75"> -->
+                <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" style="width:100px;height:40px;padding:0px; ;margin:4px; float:left" (click)="beautifyContent()">
                   Beautify
                  </button>
-            </div>
-            <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-                <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="compile()">
+            <!-- </div> -->
+            <!-- <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75"> -->
+                <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" style="width:100px;height:40px;padding:0px; ;margin:4px; float:left" (click)="compile()">
                  Run
                  </button>
-            </div>
-            <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-                <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="subir()">
+            <!-- </div> -->
+            <!-- <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75"> -->
+                <button type="button" *ngIf="notImported" class="btn btn-beautify btn-sm btn-block px-4 mx-2" style="width:100px;height:40px;padding:0px; ;margin:4px; float:left" (click)="subir()">
                  Guardar
                 </button>
-            </div>
+            <!-- </div> -->
+            <!-- <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75"> -->
+                <button type="button" *ngIf="!notImported" class="btn btn-beautify btn-sm btn-block px-4 mx-2" style="width:100px;height:40px;padding:0px; ;margin:4px; float:left" (click)="recarga()">
+                 Nuevo
+                </button>
+            <!-- </div> -->
+                <button type="button" *ngIf="!notImported" class="btn btn-beautify btn-sm btn-block px-4 mx-2" style="width:100px;height:40px;padding:0px; ;margin:4px; float:left" (click)="onUpdateCodigos()">
+                Update
+                </button>
         </div>
 
-    </div>
+    <!-- </div> -->
 
 <!-- Output -->
-    <div class="row mt-4">
-        <div class="label-box border"><span class="mx-4 font-weight-light">Output {{this.currentProyectoName}}</span></div>
+    <div id="output" class="navbar navbar-light " >
+        <div class="label-box border"><span class="mx-4 font-weight-light">Output:  {{this.currentProyectoName}}</span></div>
         <!-- <textarea class="form-control output" rows="6" disabled="true" aria-label="output-textarea"></textarea> -->
-        <iframe class="col-lg-12 col-md-12 col-sm-12" style="height:700px;" id="code"></iframe>
+        <iframe class="col-lg-12 col-md-12 col-sm-12" style="height:700px; width:100%; padding-left: 0; padding-right: 0 !important" id="code"></iframe>
     </div>
 
-    </div>
+    <!-- </div> -->
 
 </div>

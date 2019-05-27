@@ -370,11 +370,20 @@ export class RestApiService {
     )
   }
 
-  // HttpClient API put() method => Update dato
-  updateProyectoDTO(id, proy): Observable<ProyectoDto> {
-    return this.http.put<ProyectoDto>(this.apiURL + '/proyectos/update/' + id, JSON.stringify(proy), this.httpOptions)
+  // HttpClient API put() method => Update mombre de proyecto
+  updateProyectoDTONombre(id, proy:Map<string, any>) {
+    return this.http.put<ProyectoDto>(this.apiURL + '/proyectos/updatenombre/' + id, JSON.stringify(proy), this.httpOptions)
     .pipe(
-      retry(1),
+      retry(0),
+      catchError(this.handleError)
+    )
+  }
+
+  // HttpClient API put() method => Update arhcivos de proyecto
+  updateProyectoDTOAll(id, proy): Observable<ProyectoDto> {
+    return this.http.put<ProyectoDto>(this.apiURL + '/proyectos/updateall/' + id, proy, this.httpOptions)
+    .pipe(
+      retry(0),
       catchError(this.handleError)
     )
   }

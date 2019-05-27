@@ -54,6 +54,7 @@ export class EditoresComponent implements AfterViewInit {
   private codeC: ace.Ace.Editor;
   private codeD: ace.Ace.Editor;
   private editorBeautify;
+  public notImported: boolean = true;
   librerias: any = [];
   libreriasProyecto: any = [];
   calledLib: string[] = [];
@@ -183,6 +184,11 @@ export class EditoresComponent implements AfterViewInit {
       });
   }
 
+
+  /**
+   * Evento cuando selecionas una lib del repositorio para correrla junto
+   * al proyecto actual o añadirsela a posteriori con el submit
+   */
   onSelection(e, v) {
     this.calledLib = [];
     this.aImportar = '';
@@ -192,6 +198,10 @@ export class EditoresComponent implements AfterViewInit {
       }
   }
 
+  /**
+   * 
+   * Boton de run
+   */
   compile() {
 
     var html = this.codeH.getValue();
@@ -204,6 +214,7 @@ export class EditoresComponent implements AfterViewInit {
 
     // d3 v3 : <script src="//d3js.org/d3.v3.min.js"></script>
     // d3 v5 : <script src="https://d3js.org/d3.v5.js"></script>
+    console.log(this.aImportar);
 
     // document.body.onkeyup = function() {
     code.open();
@@ -222,6 +233,9 @@ export class EditoresComponent implements AfterViewInit {
     // };
   }
 
+  /**
+   * Boton de guardar nuevo proyecto
+   */
   subir() {
 
    var html = this.codeH.getValue();
@@ -262,7 +276,7 @@ export class EditoresComponent implements AfterViewInit {
   }
 
   /**
-   * Importacion desde tabla
+   * Importacion desde la tabla en la tab de Opciones
    * @param modelo
    */
   onImport(modelo: ProyectoDto){
@@ -270,7 +284,10 @@ export class EditoresComponent implements AfterViewInit {
 
     if (window.confirm('Confirmar importación?')) {
 
+      this.configProy();
+
       this.aImportar = '';
+      this.notImported = false;
       var proyecto =  this.listadoProyectos.find(x => x.ident === modelo.ident);
       this.currentProyectoId = modelo.ident.toString();
       this.currentProyectoName = modelo.nombre;
@@ -294,14 +311,40 @@ export class EditoresComponent implements AfterViewInit {
       this.libreriasProyecto = [];
       if (proyecto.librerias != null) {
         for (let libP of proyecto.librerias) {
-          console.log(libP);
+         // console.log(libP);
           this.libreriasProyecto.push(libP);
           this.aImportar = this.aImportar + ' \n' + libP.valor;
         }
+        
       }
+     // console.log(this.aImportar);
       this.compile();
+      this.codeJ.selection.moveCursorFileStart(); // deselecciona el texto
+      this.codeH.selection.moveCursorFileStart();
+      this.codeC.selection.moveCursorFileStart();
       this.scriptsaEliminar = [];
     }
+  }
+
+  /**
+   * Updatea el html, css, javascript y json del proyecto pero no las libs
+   */
+  onUpdateCodigos(){
+    var html = this.codeH.getValue();
+    var css = this.codeC.getValue();
+    var js = this.codeJ.getValue();
+    var dato = this.codeD.getValue();
+    let proyecto = new Map();
+ 
+    proyecto['html'] =  {1: html};
+    proyecto['css'] = {1: css};
+    proyecto['script'] = {1: js};
+    proyecto['dato'] =  {1: dato};
+ 
+    if (window.confirm('Confirmar subida de proyecto?')) {
+        this.restApi.updateProyectoDTOAll(this.currentProyectoId, proyecto).subscribe(data => {
+        });
+       }
   }
 
   onEdit(modelo) {
@@ -327,7 +370,7 @@ export class EditoresComponent implements AfterViewInit {
 
   updateProyecto(id, unmod: Map<string, string>) {
     if (window.confirm('Confirmar ?')) {
-      this.restApi.updateProyectoDTO(id, unmod).subscribe(data => {
+      this.restApi.updateProyectoDTONombre(id, unmod).subscribe(data => {
 
        });
       }
@@ -422,8 +465,34 @@ export class EditoresComponent implements AfterViewInit {
        mapaImps[count] = imp;
        count++;
     }
-        this.restApi.createMidwayDTO(this.currentProyectoId, mapaImps).subscribe(data => {
+    this.restApi.createMidwayDTO(this.currentProyectoId, mapaImps).subscribe(data => {
         });
+
+  }
+
+  recarga(){
+
+   // window.location.reload();
+   this.codeH.setValue('');
+   this.codeJ.setValue('');
+   this.codeC.setValue('');
+   this.codeD.setValue('[];');
+
+   var element = document.getElementById('code') as HTMLIFrameElement;
+   var code = element.contentWindow.document;
+   element.src = "about:blank";
+   this.notImported = true;
+   this.currentProyectoName = '';
+   this.currentProyectoId = '';
+   this.quiereimportar = this.sino[1].op;
+   this.libreriasProyecto = [];
+
+   this.configHTML();
+   this.configCSS();
+   this.configJS();
+   this.configDATA();
+   this.configLIB();
+   this.configProy();
 
   }
 
